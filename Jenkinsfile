@@ -3,15 +3,28 @@ pipeline {
 
     stages {
         stage('Build') {
-            steps {
-                echo 'Creating virtual environment and installing dependencies...'
-                sh '''
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install -r requirements.txt
-                '''
-            }
-        }
+  steps {
+    echo 'Creating virtual environment and installing dependencies...'
+    sh '''
+      # remove any previous virtualenv to avoid stale packages
+      rm -rf venv || true
+
+      # create venv and activate
+      python3 -m venv venv
+      . venv/bin/activate
+
+      # upgrade pip, then install pinned requirements
+      pip install --upgrade pip
+      pip install -r requirements.txt
+
+      # show versions to debug if needed
+      pip show flask
+      pip show werkzeug
+    '''
+  }
+}
+
+}
 
         stage('Test') {
             steps {
